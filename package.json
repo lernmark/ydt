@@ -1,0 +1,8 @@
+{
+    "name": "fe",
+    "version": "0.1.0",
+    "scripts": {
+      "build:fe": "npm --prefix fe run build"
+    }
+  }
+  
