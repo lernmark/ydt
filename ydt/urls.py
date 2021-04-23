@@ -16,7 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework_jwt.views import obtain_jwt_token
 from ydt import views
+from .views import current_user, UserList
 
 router = routers.DefaultRouter()
 router.register(r'todos', views.TodoView, 'todo')
@@ -25,4 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('django.contrib.auth.urls')),
     path('api/', include(router.urls)),
+    path('token-auth/', obtain_jwt_token),
+    path('current_user/', current_user),
+    path('users/', UserList.as_view())
 ]
