@@ -2,7 +2,7 @@
     "name": "fe",
     "version": "0.1.0",
     "scripts": {
-      "build:fe": "npm --prefix fe run build"
+        "build:fe": "npm --prefix fe run build"
     },
     "dependencies": {
         "react": "^17.0.2",
@@ -10,4 +10,3 @@
         "react-scripts": "4.0.3"
     }
 }
-  
