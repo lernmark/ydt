@@ -4,10 +4,9 @@ from django.contrib.auth.models import User
 from .models import Todo
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ('username',)
+        fields = ('username','email')
 
 class UserSerializerWithToken(serializers.ModelSerializer):
 
@@ -35,6 +34,11 @@ class UserSerializerWithToken(serializers.ModelSerializer):
         fields = ('token', 'username', 'password')
 
 class TodoSerializer(serializers.ModelSerializer):
+    print("Todo serializer")
     class Meta:
         model = Todo
-        fields = ('id', 'title', 'isCompleted')
+        fields = ('id', 'title', 'description', 'author', 'responsible', 'isCompleted')
+
+class TokenSerializer(serializers.Serializer):
+    firebase_token = serializers.CharField()        
+    username = serializers.CharField()

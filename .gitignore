@@ -1,1 +1,3 @@
-/__pycache__
+/ydt/__pycache__
+/ydt/migrations/__pycache__
+ydt/serviceAccountKey.json

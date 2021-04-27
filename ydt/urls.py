@@ -17,8 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from rest_framework_jwt.views import obtain_jwt_token
+
 from ydt import views
-from .views import current_user, UserList
+from .views import current_user
 
 router = routers.DefaultRouter()
 router.register(r'todos', views.TodoView, 'todo')
@@ -29,5 +30,4 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('token-auth/', obtain_jwt_token),
     path('current_user/', current_user),
-    path('users/', UserList.as_view())
 ]
