@@ -12,6 +12,10 @@ from django.core import serializers
 
 from .serializers import UserSerializer, UserSerializerWithToken, TodoSerializer, TokenSerializer
 from .models import Todo
+import mailchimp_transactional as MailchimpTransactional
+from mailchimp_transactional.api_client import ApiClientError
+
+
 cred = credentials.Certificate("ydt/serviceAccountKey.json")
 if not firebase_admin._apps:
     # app = firebase_admin.initialize_app()
@@ -32,6 +36,39 @@ def current_user(request):
 
     return Response(ts.data, status=status.HTTP_200_OK)
 
+def sendEmail(recipient, title):
+    print("SEND EMAIL")
+    recipientEmail = ''
+    if recipient != None:
+        try:
+            uid = User.objects.get(username=recipient)
+            recipientEmail = uid.email
+        except:
+            print("User not found")    
+
+    try:
+        mailchimp = MailchimpTransactional.Client('UmKzfIz2JMj707I4zvER6g') # borde ju ligga i environment.
+        message = {
+            "from_email": "info@lernmark.space",
+            "subject": f"You have been assigned a task in YDT '{title}'",
+            "text": "Login and have a look",
+            "to": [
+                {
+                    "email": recipientEmail,
+                    "type": "to"
+                }
+            ]
+        }
+        try:
+            response = mailchimp.messages.send({"message":message})
+            print('API called successfully: {}'.format(response))
+        except ApiClientError as error:
+            print('An exception occurred: {}'.format(error.text))
+
+    except ApiClientError as error:
+        print('An exception occurred: {}'.format(error.text))
+
+
 def update_firebase(queryset):
     ref = db.reference('/')
     ref.delete()
@@ -48,17 +85,28 @@ def update_firebase(queryset):
             'update_at': str(instance.update_at)
         }
     ref.set(objects_to_save)
-    
+
 class TodoView(viewsets.ModelViewSet):
     serializer_class = TodoSerializer
     queryset = Todo.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)        
+        serializer.save(author=self.request.user)     
+        newResponsible = self.request.data['responsible'] 
+        title = self.request.data['title']    
+        if newResponsible != None:
+            sendEmail(newResponsible, title)
         update_firebase(Todo.objects.all())
 
     def perform_update(self, serializer):
+        id = self.request.data['id']
+
+        oldResponsible = Todo.objects.get(id=id).responsible
+        newResponsible = self.request.data['responsible']    
+        title = self.request.data['title']    
         serializer.save()        
+        if newResponsible != None and oldResponsible != newResponsible:
+            sendEmail(newResponsible, title)
         update_firebase(Todo.objects.all())
 
     def perform_destroy(self, serializer):
